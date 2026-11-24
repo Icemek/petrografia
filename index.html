@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Petrografia – Fiszki</title>
+  <style>
+    :root {
+      --bg: #121417;
+      --card: #1c2026;
+      --border: #2e343e;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #3b82f6;
+      --ok: #22c55e;
+      --err: #ef4444;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body {
+      margin: 0; padding: 20px; background: var(--bg); color: var(--text);
+      display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+    }
+    .container { width: 100%; max-width: 720px; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+      background: var(--card); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .toolbar-group { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    select, button, input[type="text"] {
+      background: #0d1117; color: var(--text); border: 1px solid var(--border);
+      border-radius: 6px; padding: 8px 12px; font-size: 14px;
+    }
+    button { cursor: pointer; font-weight: 600; transition: 0.15s; }
+    button:hover { border-color: var(--accent); }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    button.primary:hover { filter: brightness(1.1); }
+    label.toggle { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px; display: flex; flex-direction: column; gap: 16px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card.card-ok {
+      border-color: var(--ok);
+      box-shadow: 0 0 28px 6px rgba(34, 197, 94, 0.35);
+    }
+    .card.card-err {
+      border-color: var(--err);
+      box-shadow: 0 0 28px 6px rgba(239, 68, 68, 0.35);
+    }
+
+    .header-row { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px; }
+    .img-box {
+      width: 100%; max-height: 360px; background: #0d1117; border-radius: 8px;
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); min-height: 220px;
+    }
+    .img-box img { width: 100%; max-height: 360px; object-fit: contain; display: block; }
+    .img-fallback { color: var(--muted); padding: 30px; text-align: center; font-size: 14px; }
+
+    .stage-box { display: flex; flex-direction: column; gap: 10px; }
+    .input-row { display: flex; gap: 8px; }
+    .input-row input { flex: 1; font-size: 16px; padding: 10px 12px; transition: border-color 0.15s, box-shadow 0.15s; }
+    input.flash-err { border-color: var(--err); box-shadow: 0 0 12px 2px rgba(239, 68, 68, 0.3); }
+    input.flash-ok { border-color: var(--ok); box-shadow: 0 0 12px 2px rgba(34, 197, 94, 0.3); }
+
+    .rock-title { font-size: 22px; font-weight: 700; color: var(--ok); margin: 0; }
+    .category {
+      background: #14181e; border: 1px solid var(--border); border-radius: 8px; padding: 12px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .cat-header { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; }
+    .cat-count { color: var(--muted); }
+    .cat-count.done { color: var(--ok); }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 500;
+      background: rgba(34, 197, 94, 0.15); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+    .tag.missed {
+      background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    .actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 6px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="toolbar">
+      <div class="toolbar-group">
+        <select id="modeSelect">
+          <option value="stage1" selected>Etap 1: Tylko nazwa (wszystkie zdjęcia)</option>
+          <option value="both">Etap 1 + 2: Nazwa → Cechy (1 losowe/skałę)</option>
+          <option value="stage2">Tylko Etap 2: Cechy (1 losowe/skałę)</option>
+        </select>
+        <label class="toggle">
+          <input type="checkbox" id="hintsToggle">
+          Autouzupełnianie
+        </label>
+      </div>
+      <div class="toolbar-group">
+        <button id="shuffleBtn">Losuj nową talię</button>
+      </div>
+    </div>
+
+    <div class="card" id="mainCard">
+      <div class="header-row">
+        <span id="progressText">Okaz 1 / 1</span>
+        <span id="statusText"></span>
+      </div>
+
+      <div class="img-box" id="imgBox"></div>
+
+      <!-- ETAP 1 -->
+      <div id="stage1Box" class="stage-box">
+        <div class="input-row">
+          <input type="text" id="nameInput" placeholder="Wpisz nazwę skały i naciśnij Enter..." autocomplete="off">
+          <button class="primary" id="checkNameBtn">Sprawdź</button>
+        </div>
+      </div>
+
+      <!-- ETAP 2 -->
+      <div id="stage2Box" class="stage-box hidden">
+        <h2 class="rock-title" id="revealedName"></h2>
+        <div id="categoriesContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+
+      <div class="actions">
+        <button id="revealBtn">Pokaż odpowiedź</button>
+        <button class="primary" id="nextBtn">Następny →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="datalists"></div>
+
+  <script>
+    // =========================================================================
+    // TUTAJ WPISUJESZ SWOJE SKAŁY
+    // W polu "zdjecia" podajesz tablicę ze wszystkimi zdjęciami danego typu skały.
+    // =========================================================================
+    const BAZA_SKAL = [
+      {
+        nazwa: "Granit",
+        zdjecia: [
+          "zdjecia/granit1.jpg",
+          "zdjecia/granit2.jpg",
+          "zdjecia/granit3.jpg",
+		  "zdjecia/granit4.jpg",
+          "zdjecia/granit5.jpg",
+          "zdjecia/granit6.jpg",
+		  "zdjecia/granit7.jpg",
+          "zdjecia/granit8.jpg",
+          "zdjecia/granit9.jpg",
+		  "zdjecia/granit10.jpg",
+          "zdjecia/granit11.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+      {
+        nazwa: "Riolit",
+        zdjecia: [
+          "zdjecia/riolit1.jpg",
+          "zdjecia/riolit2.jpg",
+		  "zdjecia/riolit3.jpg",
+		  "zdjecia/riolit4.jpg",
+		  "zdjecia/riolit5.jpg",
+		  "zdjecia/riolit6.jpg"
+        ],
+        kategorie: {
+          "Okruchy skalne / Skład": ["kwarc", "skalenie", "okruchy skał", "spoiwo"],
+          "Warstwowanie": ["równoległe", "przekątne"],
+          "Tekstura": ["psamitowa", "porowata", "kierunkowa"],
+          "Skały podobne": ["kwarcyt", "mułowiec", "zlepieniec"]
+        }
+      },
+	  {
+        nazwa: "Sjenit",
+        zdjecia: [
+          "zdjecia/sjenit1.jpg",
+          "zdjecia/sjenit2.jpg",
+		  "zdjecia/sjenit3.jpg",
+		  "zdjecia/sjenit4.jpg",
+		  "zdjecia/sjenit5.jpg",
+          "zdjecia/sjenit6.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Dioryt",
+        zdjecia: [
+          "zdjecia/dioryt1.jpg",
+          "zdjecia/dioryt2.jpg",
+		  "zdjecia/dioryt4.jpg",
+		  "zdjecia/dioryt5.jpg",
+		  "zdjecia/dioryt6.jpg",
+		  "zdjecia/dioryt3.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Gabro",
+        zdjecia: [
+          "zdjecia/gabro1.jpg",
+          "zdjecia/gabro2.jpg",
+          "zdjecia/gabro_labradoryt.jpg",
+		  "zdjecia/gabrolabradoryt1.jpg",
+		  "zdjecia/gabrolabradoryt2.jpg",
+		  "zdjecia/gabrolabradoryt3.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Andezyt",
+        zdjecia: [
+          "zdjecia/andezyt1.jpg",
+          "zdjecia/andezyt2.jpg",
+          "zdjecia/andezyt3.jpg",
+		  "zdjecia/andezyt4.jpg",
+		  "zdjecia/andezyt5.jpg",
+		  "zdjecia/andezyt6.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Melafir",
+        zdjecia: [
+          "zdjecia/melafir1.jpg",
+          "zdjecia/melafir2.jpg",
+		  "zdjecia/melafir3.jpg",
+		  "zdjecia/melafir4.jpg",
+		  "zdjecia/melafir5.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Bazalt",
+        zdjecia: [
+          "zdjecia/bazalt1.jpg",
+          "zdjecia/bazalt2.jpg",
+		  "zdjecia/bazalt3.jpg",
+		  "zdjecia/bazalt4.jpg",
+		  "zdjecia/bazalt5.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Pegmatyt",
+        zdjecia: [
+          "zdjecia/pegmatyt1.jpg",
+          "zdjecia/pegmatyt2.jpg",
+          "zdjecia/pegmatyt3.jpg",
+		  "zdjecia/pegmatyt4.jpg",
+		  "zdjecia/pegmatyt5.jpg",
+		  "zdjecia/pegmatyt6.jpg",
+		  "zdjecia/pegmatyt7.jpg",
+		  "zdjecia/pegmatyt8.jpg",
+		  "zdjecia/pegmatyt9.jpg",
+		  "zdjecia/pegmatyt10.jpg",
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Brekcja",
+        zdjecia: [
+          "zdjecia/brekcja1.jpg",
+          "zdjecia/brekcja2.jpg",
+          "zdjecia/brekcja3.jpg",
+		  "zdjecia/brekcja4.jpg",
+		  "zdjecia/brekcja5.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Piaskowiec",
+        zdjecia: [
+          "zdjecia/piaskowiec1.jpg",
+          "zdjecia/piaskowiec2.jpg",
+          "zdjecia/piaskowiec3.jpg",
+		  "zdjecia/piaskowiec4.jpg",
+		  "zdjecia/piaskowiec5.jpg",
+		  "zdjecia/piaskowiec6.jpg",
+		  "zdjecia/piaskowiec7.jpg",
+		  "zdjecia/piaskowiec8.jpg",
+		  "zdjecia/piaskowiec9.jpg",
+		  "zdjecia/piaskowiec10.jpg",
+		  "zdjecia/piaskowiec11.jpg",
+		  "zdjecia/piaskowiec12.jpg",
+		  "zdjecia/piaskowiec13.jpg",
+		  "zdjecia/piaskowiec14.jpg",
+		  "zdjecia/piaskowiec15.jpg",
+		  "zdjecia/piaskowiec16.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Zlepieniec",
+        zdjecia: [
+          "zdjecia/zlepieniec1.jpg",
+          "zdjecia/zlepieniec2.jpg",
+          "zdjecia/zlepieniec3.jpg",
+		  "zdjecia/zlepieniec4.jpg",
+		  "zdjecia/zlepieniec5.jpg",
+		  "zdjecia/zlepieniec6.jpg",
+		  "zdjecia/zlepieniec7.jpg",
+		  "zdjecia/zlepieniec8.jpg",
+		  "zdjecia/zlepieniec9.jpg",
+		  "zdjecia/zlepieniec10.jpg",
+		  "zdjecia/zlepieniec11.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Less",
+        zdjecia: [
+          "zdjecia/less1.jpg",
+          "zdjecia/less2.jpg",
+          "zdjecia/less3.jpg",
+		  "zdjecia/less4.jpg",
+		  "zdjecia/less5.jpg",
+		  "zdjecia/less6.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Ił pstry",
+        zdjecia: [
+          "zdjecia/ilpstry1.jpg",
+          "zdjecia/ilpstry2.jpg",
+          "zdjecia/ilpstry3.jpg",
+		  "zdjecia/ilpstry4.jpg",
+		  "zdjecia/ilpstry5.jpg",
+		  "zdjecia/ilpstry6.jpg",
+		  "zdjecia/ilpstry7.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Ił warstwowy",
+        zdjecia: [
+          "zdjecia/ilwarstwowy1.jpg",
+          "zdjecia/ilwarstwowy2.jpg",
+          "zdjecia/ilwarstwowy3.jpg",
+		  "zdjecia/ilwarstwowy4.jpg",
+		  "zdjecia/ilwarstwowy5.jpg",
+		  "zdjecia/ilwarstwowy6.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      },
+	  {
+        nazwa: "Glina zwałowa",
+        zdjecia: [
+          "zdjecia/glinazwalowa1.jpg",
+          "zdjecia/glinazwalowa2.jpg",
+          "zdjecia/glinazwalowa3.jpg",
+		  "zdjecia/glinazwalowa4.jpg",
+		  "zdjecia/glinazwalowa5.jpg",
+		  "zdjecia/glinazwalowa6.jpg"
+        ],
+        kategorie: {
+          "Minerały": ["kwarc", "skaleń potasowy", "plagioklaz", "biotyt"],
+          "Tekstura": ["jawnokrystaliczna", "równokrystaliczna", "bezładna", "zbita"],
+          "Skały podobne": ["granodioryt", "sjenit", "gnejs"]
+        }
+      }
+    ];
+    // =========================================================================
+
+    let deck = [];
+    let currentIdx = 0;
+    let state = { nameSolved: false, found: {} };
+    let cardErrTimeout = null;
+
+    const els = {
+      card: document.getElementById("mainCard"),
+      mode: document.getElementById("modeSelect"),
+      hints: document.getElementById("hintsToggle"),
+      shuffle: document.getElementById("shuffleBtn"),
+      progress: document.getElementById("progressText"),
+      status: document.getElementById("statusText"),
+      imgBox: document.getElementById("imgBox"),
+      stage1: document.getElementById("stage1Box"),
+      stage2: document.getElementById("stage2Box"),
+      nameInput: document.getElementById("nameInput"),
+      checkNameBtn: document.getElementById("checkNameBtn"),
+      revealedName: document.getElementById("revealedName"),
+      cats: document.getElementById("categoriesContainer"),
+      revealBtn: document.getElementById("revealBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      datalists: document.getElementById("datalists")
+    };
+
+    function norm(str) {
+      return str.trim().toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/ł/g, "l");
+    }
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function flash(el, cls) {
+      el.classList.remove("flash-err", "flash-ok");
+      void el.offsetWidth;
+      el.classList.add(cls);
+      setTimeout(() => el.classList.remove(cls), 500);
+    }
+
+    function setCardState(type) {
+      clearTimeout(cardErrTimeout);
+      els.card.classList.remove("card-ok", "card-err");
+      if (type === "ok") {
+        els.card.classList.add("card-ok");
+      } else if (type === "err") {
+        void els.card.offsetWidth;
+        els.card.classList.add("card-err");
+        cardErrTimeout = setTimeout(() => {
+          els.card.classList.remove("card-err");
+        }, 900);
+      }
+    }
+
+    function buildDeck(shouldShuffle = false) {
+      const mode = els.mode.value;
+      const items = [];
+
+      BAZA_SKAL.forEach(rock => {
+        const imgs = Array.isArray(rock.zdjecia) && rock.zdjecia.length > 0
+          ? rock.zdjecia
+          : [rock.zdjecie || ""];
+
+        if (mode === "stage1") {
+          imgs.forEach(imgPath => {
+            items.push({ nazwa: rock.nazwa, aktywneZdjecie: imgPath, kategorie: rock.kategorie });
+          });
+        } else {
+          const randomImg = imgs[Math.floor(Math.random() * imgs.length)];
+          items.push({ nazwa: rock.nazwa, aktywneZdjecie: randomImg, kategorie: rock.kategorie });
+        }
+      });
+
+      deck = shouldShuffle ? shuffleArray(items) : items;
+      currentIdx = 0;
+    }
+
+    function buildDatalists() {
+      els.datalists.innerHTML = "";
+      const names = [...new Set(BAZA_SKAL.map(r => r.nazwa))];
+      createDatalist("dl-names", names);
+
+      const pools = {};
+      BAZA_SKAL.forEach(rock => {
+        Object.entries(rock.kategorie || {}).forEach(([cat, vals]) => {
+          if (!pools[cat]) pools[cat] = new Set();
+          vals.forEach(v => pools[cat].add(v));
+        });
+      });
+      Object.entries(pools).forEach(([cat, set]) => {
+        createDatalist("dl-cat-" + norm(cat).replace(/[^a-z0-9]/g, ""), [...set]);
+      });
+    }
+
+    function createDatalist(id, items) {
+      const dl = document.createElement("datalist");
+      dl.id = id;
+      items.sort().forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item;
+        dl.appendChild(opt);
+      });
+      els.datalists.appendChild(dl);
+    }
+
+    function updateHintsAttr() {
+      const on = els.hints.checked;
+      if (on) els.nameInput.setAttribute("list", "dl-names");
+      else els.nameInput.removeAttribute("list");
+
+      document.querySelectorAll(".cat-input").forEach(inp => {
+        if (on) inp.setAttribute("list", inp.dataset.dl);
+        else inp.removeAttribute("list");
+      });
+    }
+
+    function loadCard() {
+      const rock = deck[currentIdx];
+      const mode = els.mode.value;
+      state = { nameSolved: mode === "stage2", found: {} };
+      setCardState(null);
+
+      const labelType = mode === "stage1" ? "Zdjęcie" : "Skała";
+      els.progress.textContent = `${labelType} ${currentIdx + 1} / ${deck.length}`;
+      els.status.textContent = "";
+      els.nameInput.value = "";
+      els.nameInput.disabled = false;
+
+      els.imgBox.innerHTML = "";
+      const img = document.createElement("img");
+      img.src = rock.aktywneZdjecie;
+      img.alt = "Zdjęcie skały";
+      img.onerror = () => {
+        els.imgBox.innerHTML = `<div class="img-fallback">Brak zdjęcia: <b>${rock.aktywneZdjecie}</b><br>Sprawdź nazwę pliku w folderze ze zdjęciami.</div>`;
+      };
+      els.imgBox.appendChild(img);
+
+      els.stage1.classList.toggle("hidden", mode === "stage2");
+      els.stage2.classList.toggle("hidden", mode !== "stage2");
+      els.revealedName.textContent = rock.nazwa;
+
+      renderCategories(rock);
+      updateHintsAttr();
+
+      if (mode !== "stage2") els.nameInput.focus();
+    }
+
+    function renderCategories(rock) {
+      els.cats.innerHTML = "";
+      const entries = Object.entries(rock.kategorie || {});
+      entries.forEach(([catName, answers]) => {
+        state.found[catName] = new Set();
+        const dlId = "dl-cat-" + norm(catName).replace(/[^a-z0-9]/g, "");
+
+        const box = document.createElement("div");
+        box.className = "category";
+        box.dataset.cat = catName;
+
+        box.innerHTML = `
+          <div class="cat-header">
+            <span>${catName}</span>
+            <span class="cat-count">0 / ${answers.length}</span>
+          </div>
+          <div class="tags"></div>
+          <div class="input-row">
+            <input type="text" class="cat-input" data-dl="${dlId}" placeholder="Wpisz cechę (zalicza automatycznie)..." autocomplete="off">
+          </div>
+        `;
+
+        const input = box.querySelector("input");
+        // Automatyczne zaliczanie podczas wpisywania (bez wciskania Entera)
+        input.addEventListener("input", () => {
+          checkCategoryAnswer(rock, catName, input, box);
+        });
+
+        els.cats.appendChild(box);
+      });
+    }
+
+    function checkCategoryAnswer(rock, catName, input, box) {
+      const val = norm(input.value);
+      if (!val) return;
+
+      const answers = rock.kategorie[catName];
+      const match = answers.find(a => norm(a) === val);
+
+      if (match && !state.found[catName].has(match)) {
+        state.found[catName].add(match);
+        addTag(box.querySelector(".tags"), match, false);
+        input.value = "";
+        flash(input, "flash-ok");
+        updateCatCounter(box, state.found[catName].size, answers.length);
+        if (state.found[catName].size === answers.length) {
+          input.disabled = true;
+          input.placeholder = "Komplet!";
+        }
+      }
+      // Gdy niepoprawne lub niekompletne – nic się nie dzieje
+    }
+
+    function addTag(container, text, missed) {
+      const span = document.createElement("span");
+      span.className = "tag" + (missed ? " missed" : "");
+      span.textContent = (missed ? "• " : "✓ ") + text;
+      container.appendChild(span);
+    }
+
+    function updateCatCounter(box, count, total) {
+      const el = box.querySelector(".cat-count");
+      el.textContent = `${count} / ${total}`;
+      if (count === total) el.classList.add("done");
+    }
+
+    function goNextCard() {
+      currentIdx++;
+      if (currentIdx >= deck.length) {
+        buildDeck(true);
+      }
+      loadCard();
+    }
+
+    function checkName() {
+      // Jeśli nazwa została już odgadnięta w Etapie 1, ponowne wywołanie (np. 2. Enter) przechodzi dalej
+      if (state.nameSolved && els.mode.value === "stage1") {
+        goNextCard();
+        return;
+      }
+
+      const rock = deck[currentIdx];
+      if (norm(els.nameInput.value) === norm(rock.nazwa)) {
+        state.nameSolved = true;
+        setCardState("ok");
+        els.status.textContent = "Dobrze! (Enter → dalej)";
+
+        if (els.mode.value === "both") {
+          setCardState(null);
+          els.stage1.classList.add("hidden");
+          els.stage2.classList.remove("hidden");
+          const firstCatInput = els.cats.querySelector("input");
+          if (firstCatInput) firstCatInput.focus();
+        }
+      } else {
+        setCardState("err");
+        els.status.textContent = "";
+      }
+    }
+
+    els.checkNameBtn.addEventListener("click", checkName);
+    els.nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        checkName();
+      }
+    });
+
+    els.revealBtn.addEventListener("click", () => {
+      const rock = deck[currentIdx];
+      if (!state.nameSolved) {
+        els.nameInput.value = rock.nazwa;
+        state.nameSolved = true;
+        setCardState("ok");
+        els.status.textContent = "Odsłonięto (Enter → dalej)";
+        els.nameInput.focus();
+        if (els.mode.value === "both") {
+          setCardState(null);
+          els.stage1.classList.add("hidden");
+          els.stage2.classList.remove("hidden");
+        }
+      } else {
+        document.querySelectorAll(".category").forEach(box => {
+          const catName = box.dataset.cat;
+          const answers = rock.kategorie[catName];
+          const tags = box.querySelector(".tags");
+          answers.forEach(a => {
+            if (!state.found[catName].has(a)) {
+              state.found[catName].add(a);
+              addTag(tags, a, true);
+            }
+          });
+          updateCatCounter(box, answers.length, answers.length);
+          const inp = box.querySelector("input");
+          inp.disabled = true;
+        });
+      }
+    });
+
+    els.nextBtn.addEventListener("click", goNextCard);
+
+    els.shuffle.addEventListener("click", () => {
+      buildDeck(true);
+      loadCard();
+    });
+
+    els.mode.addEventListener("change", () => {
+      buildDeck(true);
+      loadCard();
+    });
+
+    els.hints.addEventListener("change", updateHintsAttr);
+
+    buildDatalists();
+    buildDeck(true);
+    loadCard();
+  </script>
+</body>
+</html>
