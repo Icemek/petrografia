@@ -23,7 +23,9 @@
       display: flex; flex-direction: column; align-items: center; min-height: 100vh;
     }
     .container { width: 100%; max-width: 820px; transition: max-width 0.2s ease; }
-    body.has-sidebar .container { max-width: 1160px; }
+    body.has-right-sidebar .container,
+    body.has-left-sidebar .container { max-width: 1160px; }
+    body.has-left-sidebar.has-right-sidebar .container { max-width: 1480px; }
 
     /* Zakładki główne */
     .nav-tabs {
@@ -55,7 +57,7 @@
     button.primary:hover { filter: brightness(1.1); }
     label.toggle { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
 
-    /* Układ Fiszki + Panel boczny */
+    /* Układ 3-kolumnowy: Lewy panel porównawczy + Fiszka + Prawy panel podpowiedzi */
     .quiz-layout {
       display: flex; gap: 16px; align-items: flex-start;
     }
@@ -63,12 +65,16 @@
       flex: 1; min-width: 0;
     }
 
+    .compare-sidebar,
     .hints-sidebar {
-      width: 310px; flex-shrink: 0;
+      width: 315px; flex-shrink: 0;
       background: var(--card); border: 1px solid var(--border); border-radius: 12px;
       padding: 16px; position: sticky; top: 20px;
       max-height: calc(100vh - 40px); overflow-y: auto;
       display: flex; flex-direction: column; gap: 12px;
+    }
+    .compare-sidebar {
+      border-color: rgba(239, 68, 68, 0.45);
     }
     .sidebar-header {
       display: flex; flex-direction: column; gap: 4px;
@@ -99,10 +105,46 @@
       font-size: 13px; color: var(--muted); line-height: 1.4;
     }
 
-    /* Na mobile panel boczny ukryty (zostaje standardowy natywny datalist) */
-    @media (max-width: 899px) {
+    /* Karty w panelu porównawczym po lewej */
+    .compare-block {
+      background: var(--card-inner); border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .compare-block.correct { border-color: rgba(34, 197, 94, 0.45); }
+    .compare-block.wrong { border-color: rgba(239, 68, 68, 0.45); }
+    .compare-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .compare-label.correct { color: var(--ok); }
+    .compare-label.wrong { color: var(--err); }
+    .compare-rock-name {
+      font-size: 16px; font-weight: 700; color: var(--text);
+    }
+    .compare-img-wrap {
+      width: 100%; height: 140px; background: #0d1117; border-radius: 6px;
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border);
+    }
+    .compare-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in;
+    }
+    .compare-section-title {
+      font-size: 11px; font-weight: 600; color: var(--muted); margin-top: 2px;
+    }
+    .compare-tags {
+      display: flex; flex-wrap: wrap; gap: 4px;
+    }
+    .compare-tags .tag {
+      font-size: 11px; padding: 3px 8px;
+    }
+
+    @media (max-width: 960px) {
+      .quiz-layout { flex-direction: column; }
+      .compare-sidebar { width: 100%; position: static; max-height: none; }
       .hints-sidebar { display: none !important; }
-      body.has-sidebar .container { max-width: 820px; }
+      body.has-right-sidebar .container,
+      body.has-left-sidebar .container,
+      body.has-left-sidebar.has-right-sidebar .container { max-width: 820px; }
     }
 
     .card {
@@ -118,8 +160,17 @@
       border-color: var(--err);
       box-shadow: 0 0 28px 6px rgba(239, 68, 68, 0.35);
     }
+    .card.card-warn {
+      border-color: var(--warn);
+      box-shadow: 0 0 24px 4px rgba(245, 158, 11, 0.3);
+    }
 
     .header-row { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px; gap: 8px; flex-wrap: wrap; }
+    .header-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .retry-pill {
+      font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+      background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.35);
+    }
     .badge {
       font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
       background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.35);
@@ -127,7 +178,9 @@
     }
     .badge.magmowe { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); }
     .badge.okruchowe { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border-color: rgba(245, 158, 11, 0.35); }
-    .badge.inne { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; border-color: rgba(168, 85, 247, 0.35); }
+    .badge.chemiczne { background: rgba(6, 182, 212, 0.15); color: #67e8f9; border-color: rgba(6, 182, 212, 0.35); }
+    .badge.organogeniczne { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.35); }
+    .badge.metamorficzne { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; border-color: rgba(168, 85, 247, 0.35); }
 
     .img-box {
       width: 100%; max-height: 380px; background: #0d1117; border-radius: 8px;
@@ -255,10 +308,12 @@
             <option value="stage2">Tylko Etap 2: Cechy (1 losowe/skałę)</option>
           </select>
           <select id="groupSelect">
-            <option value="wszystkie" selected>Kategoria: Wszystkie</option>
-            <option value="magmowe">Magmowe</option>
-            <option value="okruchowe">Okruchowe</option>
-            <option value="inne">Inne</option>
+            <option value="wszystkie" selected>Kategoria: Wszystkie (27)</option>
+            <option value="magmowe">Magmowe (9)</option>
+            <option value="okruchowe">Okruchowe (7)</option>
+            <option value="chemiczne">Chemiczne (5)</option>
+            <option value="organogeniczne">Organogeniczne i mieszane (3)</option>
+            <option value="metamorficzne">Metamorficzne (3)</option>
           </select>
           <label class="toggle">
             <input type="checkbox" id="hintsToggle">
@@ -271,10 +326,23 @@
       </div>
 
       <div class="quiz-layout">
+        <!-- LEWY PANEL PORÓWNAWCZY (GDY POMYLISZ SKAŁY) -->
+        <aside class="compare-sidebar hidden" id="compareSidebar">
+          <div class="sidebar-header">
+            <div class="sidebar-title" style="color:#fca5a5;">Porównanie skał</div>
+            <div class="sidebar-subtitle">Zestawienie poprawnej skały z Twoim typem</div>
+          </div>
+          <div id="compareContent" style="display:flex; flex-direction:column; gap:12px;"></div>
+        </aside>
+
+        <!-- ŚRODEK: KARTA FISZKI -->
         <div class="quiz-main">
           <div class="card" id="mainCard">
             <div class="header-row">
-              <span id="progressText">Okaz 1 / 1</span>
+              <div class="header-left">
+                <span id="progressText">Okaz 1 / 1</span>
+                <span id="retryBadge" class="retry-pill hidden"></span>
+              </div>
               <span id="statusText"></span>
             </div>
 
@@ -301,7 +369,7 @@
           </div>
         </div>
 
-        <!-- PANEL BOCZNY Z PODPOWIEDZIAMI (DESKTOP) -->
+        <!-- PRAWY PANEL Z PODPOWIEDZIAMI (DESKTOP) -->
         <aside class="hints-sidebar hidden" id="hintsSidebar">
           <div class="sidebar-header">
             <div class="sidebar-title" id="sidebarTitle">Możliwe odpowiedzi</div>
@@ -319,7 +387,9 @@
           <button class="pill-btn active" data-group="wszystkie">Wszystkie</button>
           <button class="pill-btn" data-group="magmowe">Magmowe</button>
           <button class="pill-btn" data-group="okruchowe">Okruchowe</button>
-          <button class="pill-btn" data-group="inne">Inne</button>
+          <button class="pill-btn" data-group="chemiczne">Chemiczne</button>
+          <button class="pill-btn" data-group="organogeniczne">Organogeniczne i mieszane</button>
+          <button class="pill-btn" data-group="metamorficzne">Metamorficzne</button>
         </div>
         <input type="text" id="atlasSearch" class="atlas-search" placeholder="Szukaj skały...">
         <button id="toggleAllAtlasBtn">Rozwiń wszystkie</button>
@@ -338,20 +408,21 @@
 
   <script>
     // =========================================================================
-    // BAZA SKAŁ (podzielona na grupy: "magmowe", "okruchowe", "inne")
+    // BAZA SKAŁ (podzielona na grupy zgodne ze spisem do kolokwium)
     // =========================================================================
     const NAZWY_GRUP = {
       magmowe: "Magmowe",
       okruchowe: "Okruchowe",
-      inne: "Inne"
+      chemiczne: "Chemiczne",
+      organogeniczne: "Organogeniczne i mieszane",
+      metamorficzne: "Metamorficzne"
     };
 
     const BAZA_SKAL = [
-      // ===================== MAGMOWE =====================
       {
-        nazwa: "Granit",
-        grupa: "magmowe",
-        zdjecia: [
+        "nazwa": "Granit",
+        "grupa": "magmowe",
+        "zdjecia": [
           "zdjecia/granit1.jpg",
           "zdjecia/granit2.jpg",
           "zdjecia/granit3.jpg",
@@ -362,18 +433,46 @@
           "zdjecia/granit8.jpg",
           "zdjecia/granit9.jpg",
           "zdjecia/granit10.jpg",
-          "zdjecia/granit11.jpg"
+          "zdjecia/granit11.jpg",
+		  "zdjecia/granit12.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kwarc", "albit", "oligoklaz", "biotyt"],
-          "Tekstura": ["pełnokrystaliczna", "jawnokrystaliczna", "równoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["Riolit", "Pegmatyt", "gnejs"]
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "jawnokrystaliczna",
+            "równoziarnista",
+            "drobnoziarnista",
+            "średnioziarnista",
+            "gruboziarnista",
+            "nierównoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "kwarc",
+            "albit",
+            "oligoklaz",
+            "biotyt",
+            "muskowit",
+            "ortoklaz",
+            "amfibole",
+            "pirokseny"
+          ],
+          "Minerały dodatkowe": [
+            "związki żelaza",
+            "granaty"
+          ],
+          "Skały podobne": [
+            "Riolit",
+            "Pegmatyt",
+            "Gnejs"
+          ]
         }
       },
       {
-        nazwa: "Riolit",
-        grupa: "magmowe",
-        zdjecia: [
+        "nazwa": "Riolit",
+        "grupa": "magmowe",
+        "zdjecia": [
           "zdjecia/riolit1.jpg",
           "zdjecia/riolit2.jpg",
           "zdjecia/riolit3.jpg",
@@ -381,116 +480,32 @@
           "zdjecia/riolit5.jpg",
           "zdjecia/riolit6.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kwarc", "albit", "ortoklaz", "oligoklaz"],
-          "Tekstura": ["pełnokrystaliczna", "porfirowa", "nierównoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["granit", "pegmatyt"]
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "porfirowa",
+            "nierównoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "kwarc",
+            "albit",
+            "oligoklaz",
+            "ortoklaz",
+            "amfibole",
+            "pirokseny"
+          ],
+          "Skały podobne": [
+            "Granit",
+            "Pegmatyt"
+          ]
         }
       },
       {
-        nazwa: "Sjenit",
-        grupa: "magmowe",
-        zdjecia: [
-          "zdjecia/sjenit1.jpg",
-          "zdjecia/sjenit2.jpg",
-          "zdjecia/sjenit3.jpg",
-          "zdjecia/sjenit4.jpg",
-          "zdjecia/sjenit5.jpg",
-          "zdjecia/sjenit6.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["ortoklaz", "albit", "oligoklaz", "biotyt"],
-          "Tekstura": ["pełnokrystaliczna", "jawnokrystaliczna", "równoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["trachit"]
-        }
-      },
-      {
-        nazwa: "Dioryt",
-        grupa: "magmowe",
-        zdjecia: [
-          "zdjecia/dioryt1.jpg",
-          "zdjecia/dioryt2.jpg",
-          "zdjecia/dioryt4.jpg",
-          "zdjecia/dioryt5.jpg",
-          "zdjecia/dioryt6.jpg",
-          "zdjecia/dioryt3.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["biotyt", "andezyn", "amfibole", "oligoklaz"],
-          "Tekstura": ["pełnokrystaliczna", "porfirowa", "równoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["andezyt"]
-        }
-      },
-      {
-        nazwa: "Gabro",
-        grupa: "magmowe",
-        zdjecia: [
-          "zdjecia/gabro1.jpg",
-          "zdjecia/gabro2.jpg",
-          "zdjecia/gabro_labradoryt.jpg",
-          "zdjecia/gabrolabradoryt1.jpg",
-          "zdjecia/gabrolabradoryt2.jpg",
-          "zdjecia/gabrolabradoryt3.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["bytownit", "labrador", "amfibole", "pirokseny"],
-          "Tekstura": ["pełnokrystaliczna", "jawnokrystaliczna", "równoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["melafir", "bazalt"]
-        }
-      },
-      {
-        nazwa: "Andezyt",
-        grupa: "magmowe",
-        zdjecia: [
-          "zdjecia/andezyt1.jpg",
-          "zdjecia/andezyt2.jpg",
-          "zdjecia/andezyt3.jpg",
-          "zdjecia/andezyt4.jpg",
-          "zdjecia/andezyt5.jpg",
-          "zdjecia/andezyt6.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["andezyn", "pirokseny", "amfibole", "oligoklaz"],
-          "Tekstura": ["pełnokrystaliczna", "porfirowa", "nierównoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["dioryt"]
-        }
-      },
-      {
-        nazwa: "Melafir",
-        grupa: "magmowe",
-        zdjecia: [
-          "zdjecia/melafir1.jpg",
-          "zdjecia/melafir2.jpg",
-          "zdjecia/melafir3.jpg",
-          "zdjecia/melafir4.jpg",
-          "zdjecia/melafir5.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["bytownit", "amfibole", "pirokseny"],
-          "Tekstura": ["pełnokrystaliczna", "skrytokrystaliczna", "równoziarnista", "uporządkowana", "porowata"],
-          "Skały podobne": ["gabro", "bazalt"]
-        }
-      },
-      {
-        nazwa: "Bazalt",
-        grupa: "magmowe",
-        zdjecia: [
-          "zdjecia/bazalt1.jpg",
-          "zdjecia/bazalt2.jpg",
-          "zdjecia/bazalt3.jpg",
-          "zdjecia/bazalt4.jpg",
-          "zdjecia/bazalt5.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["bytownit", "amfibole", "pirokseny"],
-          "Tekstura": ["pełnokrystaliczna", "skrytokrystaliczna", "równoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["gabro", "melafir"]
-        }
-      },
-      {
-        nazwa: "Pegmatyt",
-        grupa: "magmowe",
-        zdjecia: [
+        "nazwa": "Pegmatyt",
+        "grupa": "magmowe",
+        "zdjecia": [
           "zdjecia/pegmatyt1.jpg",
           "zdjecia/pegmatyt2.jpg",
           "zdjecia/pegmatyt3.jpg",
@@ -502,41 +517,601 @@
           "zdjecia/pegmatyt9.jpg",
           "zdjecia/pegmatyt10.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kwarc", "albit", "oligoklaz", "biotyt"],
-          "Tekstura": ["pełnokrystaliczna", "jawnokrystaliczna", "równoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["Riolit", "granit"]
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "jawnokrystaliczna",
+            "równoziarnista",
+            "gruboziarnista",
+            "nierównoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "kwarc",
+            "albit",
+            "oligoklaz",
+            "biotyt",
+            "muskowit",
+            "ortoklaz",
+            "amfibole",
+            "pirokseny"
+          ],
+          "Minerały dodatkowe": [
+            "granaty",
+            "związki żelaza"
+          ],
+          "Skały podobne": [
+            "Riolit",
+            "Granit"
+          ]
         }
       },
-
-      // ===================== OKRUCHOWE =====================
       {
-        nazwa: "Brekcja",
-        grupa: "okruchowe",
-        zdjecia: [
+        "nazwa": "Sjenit",
+        "grupa": "magmowe",
+        "zdjecia": [
+          "zdjecia/sjenit1.jpg",
+          "zdjecia/sjenit2.jpg",
+          "zdjecia/sjenit3.jpg",
+          "zdjecia/sjenit4.jpg",
+          "zdjecia/sjenit5.jpg",
+          "zdjecia/sjenit6.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "jawnokrystaliczna",
+            "równoziarnista",
+            "średnioziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "albit",
+            "oligoklaz",
+            "ortoklaz",
+            "biotyt",
+            "amfibole",
+            "pirokseny"
+          ],
+          "Minerały dodatkowe": [
+            "związki żelaza"
+          ],
+          "Skały podobne": [
+            "trachit"
+          ]
+        }
+      },
+      {
+        "nazwa": "Dioryt",
+        "grupa": "magmowe",
+        "zdjecia": [
+          "zdjecia/dioryt1.jpg",
+          "zdjecia/dioryt2.jpg",
+          "zdjecia/dioryt4.jpg",
+          "zdjecia/dioryt5.jpg",
+          "zdjecia/dioryt6.jpg",
+          "zdjecia/dioryt3.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "jawnokrystaliczna",
+            "równoziarnista",
+            "drobnoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "oligoklaz",
+            "biotyt",
+            "andezyn",
+            "amfibole",
+            "pirokseny"
+          ],
+          "Skały podobne": [
+            "Andezyt"
+          ]
+        }
+      },
+      {
+        "nazwa": "Andezyt",
+        "grupa": "magmowe",
+        "zdjecia": [
+          "zdjecia/andezyt1.jpg",
+          "zdjecia/andezyt2.jpg",
+          "zdjecia/andezyt3.jpg",
+          "zdjecia/andezyt4.jpg",
+          "zdjecia/andezyt5.jpg",
+          "zdjecia/andezyt6.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "porfirowa",
+            "nierównoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "oligoklaz",
+            "andezyn",
+            "amfibole",
+            "pirokseny"
+          ],
+          "Skały podobne": [
+            "Dioryt"
+          ]
+        }
+      },
+      {
+        "nazwa": "Gabro",
+        "grupa": "magmowe",
+        "zdjecia": [
+          "zdjecia/gabro1.jpg",
+          "zdjecia/gabro_labradoryt.jpg",
+          "zdjecia/gabrolabradoryt1.jpg",
+          "zdjecia/gabrolabradoryt2.jpg",
+          "zdjecia/gabrolabradoryt3.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "jawnokrystaliczna",
+            "równoziarnista",
+            "gruboziarnista",
+            "nierównoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "bytownit",
+            "labrador",
+            "amfibole",
+            "pirokseny"
+          ],
+          "Minerały dodatkowe": [
+            "związki żelaza"
+          ],
+          "Skały podobne": [
+            "Bazalt",
+            "Melafir"
+          ]
+        }
+      },
+      {
+        "nazwa": "Bazalt",
+        "grupa": "magmowe",
+        "zdjecia": [
+          "zdjecia/bazalt1.jpg",
+          "zdjecia/bazalt2.jpg",
+          "zdjecia/bazalt3.jpg",
+          "zdjecia/bazalt4.jpg",
+          "zdjecia/bazalt5.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "skrytokrystaliczna",
+            "równoziarnista",
+            "drobnoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "pirokseny",
+            "amfibole",
+            "bytownit"
+          ],
+          "Minerały dodatkowe": [
+            "oliwiny",
+            "magnetyt",
+            "związki żelaza"
+          ],
+          "Skały podobne": [
+            "gabro",
+            "melafir"
+          ]
+        }
+      },
+      {
+        "nazwa": "Melafir",
+        "grupa": "magmowe",
+        "zdjecia": [
+          "zdjecia/melafir1.jpg",
+          "zdjecia/melafir2.jpg",
+          "zdjecia/melafir3.jpg",
+          "zdjecia/melafir4.jpg",
+          "zdjecia/melafir5.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "skrytokrystaliczna",
+            "równoziarnista",
+            "drobnoziarnista",
+            "porowata",
+            "uporządkowana"
+          ],
+          "Minerały główne": [
+            "pirokseny",
+            "amfibole",
+            "bytownit"
+          ],
+          "Minerały dodatkowe": [
+            "hematyt"
+          ],
+          "Skały podobne": [
+            "bazalt",
+            "gabro"
+          ]
+        }
+      },
+      {
+        "nazwa": "Less",
+        "grupa": "okruchowe",
+        "zdjecia": [
+          "zdjecia/less1.jpg",
+          "zdjecia/less2.jpg",
+          "zdjecia/less3.jpg",
+          "zdjecia/less4.jpg",
+          "zdjecia/less5.jpg",
+          "zdjecia/less6.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "porowata",
+            "bezładna"
+          ],
+          "Grupa gruntów": [
+            "drobnoziarnista"
+          ],
+          "Frakcja": [
+            "pył"
+          ],
+          "Stopień selekcji materiału": [
+            "wysoki"
+          ],
+          "Stopień obtoczenia": [
+            "obtoczone"
+          ],
+          "Charakter powierzchni ziaren": [
+            "matowe"
+          ],
+          "Minerały główne": [
+            "kwarc",
+            "kalcyt",
+            "kaolinit",
+            "illit",
+            "montmorillonit",
+            "minerały ilaste",
+            "związki żelaza"
+          ],
+          "Okruchy / materia organiczna": [
+            "brak"
+          ],
+          "Warstwowanie": [
+            "brak",
+            "równoległe"
+          ],
+          "Spoiwo": [
+            "brak",
+            "kalcyt"
+          ],
+          "Skały podobne": [
+            "glina zwałowa",
+            "ił warwowy"
+          ]
+        }
+      },
+      {
+        "nazwa": "Ił pstry",
+        "grupa": "okruchowe",
+        "zdjecia": [
+          "zdjecia/ilpstry1.jpg",
+          "zdjecia/ilpstry2.jpg",
+          "zdjecia/ilpstry3.jpg",
+          "zdjecia/ilpstry4.jpg",
+          "zdjecia/ilpstry5.jpg",
+          "zdjecia/ilpstry6.jpg",
+          "zdjecia/ilpstry7.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "porowata",
+            "bezładna"
+          ],
+          "Grupa gruntów": [
+            "drobnoziarnista"
+          ],
+          "Frakcja": [
+            "ił"
+          ],
+          "Stopień selekcji materiału": [
+            "wysoki"
+          ],
+          "Stopień obtoczenia": [
+            "obtoczone"
+          ],
+          "Charakter powierzchni ziaren": [
+            "matowe"
+          ],
+          "Minerały główne": [
+            "kaolinit",
+            "illit",
+            "montmorillonit",
+            "minerały ilaste",
+            "kwarc",
+            "związki żelaza"
+          ],
+          "Okruchy / materia organiczna": [
+            "brak"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Spoiwo": [
+            "brak"
+          ],
+          "Skały podobne": [
+            "łupki ilaste",
+            "iłowce"
+          ]
+        }
+      },
+      {
+        "nazwa": "Ił warwowy",
+        "grupa": "okruchowe",
+        "zdjecia": [
+          "zdjecia/ilwarstwowy1.jpg",
+          "zdjecia/ilwarstwowy2.jpg",
+          "zdjecia/ilwarstwowy3.jpg",
+          "zdjecia/ilwarstwowy4.jpg",
+          "zdjecia/ilwarstwowy5.jpg",
+          "zdjecia/ilwarstwowy6.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "porowata",
+            "uporządkowana"
+          ],
+          "Grupa gruntów": [
+            "drobnoziarnista"
+          ],
+          "Frakcja": [
+            "ił",
+            "pył",
+            "piasek"
+          ],
+          "Stopień selekcji materiału": [
+            "wysoki"
+          ],
+          "Stopień obtoczenia": [
+            "obtoczone"
+          ],
+          "Charakter powierzchni ziaren": [
+            "matowe"
+          ],
+          "Minerały główne": [
+            "kwarc",
+            "kaolinit",
+            "illit",
+            "montmorillonit",
+            "minerały ilaste",
+            "związki żelaza",
+            "kalcyt"
+          ],
+          "Okruchy / materia organiczna": [
+            "nieutleniona materia organiczna"
+          ],
+          "Warstwowanie": [
+            "tak",
+            "równoległe"
+          ],
+          "Spoiwo": [
+            "brak"
+          ],
+          "Skały podobne": [
+            "glina zwałowa",
+            "less"
+          ]
+        }
+      },
+      {
+        "nazwa": "Glina zwałowa",
+        "grupa": "okruchowe",
+        "zdjecia": [
+          "zdjecia/glinazwalowa1.jpg",
+          "zdjecia/glinazwalowa2.jpg",
+          "zdjecia/glinazwalowa3.jpg",
+          "zdjecia/glinazwalowa4.jpg",
+          "zdjecia/glinazwalowa5.jpg",
+          "zdjecia/glinazwalowa6.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "porowata",
+            "bezładna"
+          ],
+          "Grupa gruntów": [
+            "wszystkie"
+          ],
+          "Frakcja": [
+            "wszystkie"
+          ],
+          "Stopień selekcji materiału": [
+            "brak"
+          ],
+          "Stopień obtoczenia": [
+            "słabo obtoczone",
+            "ostrokrawędziste"
+          ],
+          "Charakter powierzchni ziaren": [
+            "matowe"
+          ],
+          "Minerały główne": [
+            "kwarc",
+            "kalcyt",
+            "kaolinit",
+            "illit",
+            "montmorillonit",
+            "minerały ilaste",
+            "skalenie",
+            "amfibole",
+            "pirokseny",
+            "związki żelaza"
+          ],
+          "Okruchy / materia organiczna": [
+            "okruchy skalne",
+            "granit",
+            "bazalt",
+            "piaskowiec",
+            "riolit",
+            "wapień"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Spoiwo": [
+            "brak"
+          ],
+          "Skały podobne": [
+            "ił warwowy",
+            "less"
+          ]
+        }
+      },
+      {
+        "nazwa": "Brekcja",
+        "grupa": "okruchowe",
+        "zdjecia": [
           "zdjecia/brekcja1.jpg",
           "zdjecia/brekcja2.jpg",
           "zdjecia/brekcja3.jpg",
           "zdjecia/brekcja4.jpg",
           "zdjecia/brekcja5.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kwarc", "kalcyt", "zwiazki żelaza"],
-          "Tekstura": ["zbita", "bezładna"],
-          "Grupa gruntów": ["gruboziarnista"],
-          "Frakcja": ["żwir", "kamienie", "głazy"],
-          "Stopień selekcji materiału": ["brak"],
-          "Stopień obtoczenia": ["ostrokrawędziste"],
-          "Charakter powierzchni ziaren": ["matowe"],
-          "Skały podobne": ["glina zwałowa", "less"],
-          "okruchy skalne/zw. organiczne": ["wapienie"],
-          "spoiwo": ["żelaziste"]
+        "kategorie": {
+          "Tekstura": [
+            "zbita",
+            "bezładna"
+          ],
+          "Grupa gruntów": [
+            "bardzo gruboziarnista",
+            "gruboziarnista"
+          ],
+          "Frakcja": [
+            "żwir",
+            "kamienie",
+            "głazy"
+          ],
+          "Stopień selekcji materiału": [
+            "brak",
+            "słaba selekcja"
+          ],
+          "Stopień obtoczenia": [
+            "ostrokrawędziste"
+          ],
+          "Charakter powierzchni ziaren": [
+            "matowe",
+            "błyszczące"
+          ],
+          "Minerały główne": [
+            "kwarc",
+            "kalcyt",
+            "związki żelaza"
+          ],
+          "Minerały dodatkowe": [
+            "amfibole",
+            "pirokseny",
+            "skalenie"
+          ],
+          "Okruchy / materia organiczna": [
+            "okruchy skalne",
+            "wapienie zbite",
+            "wapienie bitumiczne",
+            "wapienie organogeniczne"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Spoiwo": [
+            "wapnisto-żelaziste",
+            "krzemionkowo-żelaziste"
+          ]
         }
       },
       {
-        nazwa: "Piaskowiec",
-        grupa: "okruchowe",
-        zdjecia: [
+        "nazwa": "Zlepieniec",
+        "grupa": "okruchowe",
+        "zdjecia": [
+          "zdjecia/zlepieniec1.jpg",
+          "zdjecia/zlepieniec2.jpg",
+          "zdjecia/zlepieniec3.jpg",
+          "zdjecia/zlepieniec4.jpg",
+          "zdjecia/zlepieniec5.jpg",
+          "zdjecia/zlepieniec6.jpg",
+          "zdjecia/zlepieniec7.jpg",
+          "zdjecia/zlepieniec8.jpg",
+          "zdjecia/zlepieniec9.jpg",
+          "zdjecia/zlepieniec10.jpg",
+          "zdjecia/zlepieniec11.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "zbita",
+            "bezładna"
+          ],
+          "Grupa gruntów": [
+            "bardzo gruboziarnista",
+            "gruboziarnista"
+          ],
+          "Frakcja": [
+            "żwir",
+            "kamienie",
+            "głazy"
+          ],
+          "Stopień selekcji materiału": [
+            "brak",
+            "słaba selekcja"
+          ],
+          "Stopień obtoczenia": [
+            "obtoczone"
+          ],
+          "Charakter powierzchni ziaren": [
+            "matowe",
+            "błyszczące"
+          ],
+          "Minerały główne": [
+            "kwarc",
+            "kalcyt",
+            "związki żelaza"
+          ],
+          "Minerały dodatkowe": [
+            "amfibole",
+            "pirokseny",
+            "skalenie"
+          ],
+          "Okruchy / materia organiczna": [
+            "okruchy skalne",
+            "wapienie zbite",
+            "wapienie bitumiczne",
+            "wapienie organogeniczne"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Spoiwo": [
+            "wapnisto-żelaziste",
+            "krzemionkowo-żelaziste"
+          ]
+        }
+      },
+      {
+        "nazwa": "Piaskowiec",
+        "grupa": "okruchowe",
+        "zdjecia": [
           "zdjecia/piaskowiec1.jpg",
           "zdjecia/piaskowiec2.jpg",
           "zdjecia/piaskowiec3.jpg",
@@ -554,144 +1129,149 @@
           "zdjecia/piaskowiec15.jpg",
           "zdjecia/piaskowiec16.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kwarc", "zwiazki żelaza"],
-          "Tekstura": ["porowata", "uporządkowana", "bezładna"],
-          "Grupa gruntów": ["gruboziarnista"],
-          "Frakcja": ["piasek"],
-          "Stopień selekcji materiału": ["wysoki"],
-          "Stopień obtoczenia": ["obtoczone"],
-          "Charakter powierzchni ziaren": ["matowe", "błyszczące"],
-          "Skały podobne": ["piasek", "kwarcyt"],
-          "spoiwo": ["krzemionkowe"],
-          "warstwowanie": ["tak", "nie"]
+        "kategorie": {
+          "Tekstura": [
+            "porowata",
+            "uporządkowana",
+            "bezładna"
+          ],
+          "Grupa gruntów": [
+            "gruboziarnista"
+          ],
+          "Frakcja": [
+            "piasek"
+          ],
+          "Stopień selekcji materiału": [
+            "wysoki"
+          ],
+          "Stopień obtoczenia": [
+            "obtoczone"
+          ],
+          "Charakter powierzchni ziaren": [
+            "błyszczące",
+            "matowe"
+          ],
+          "Minerały główne": [
+            "kwarc"
+          ],
+          "Minerały dodatkowe": [
+            "muskowit",
+            "skalenie",
+            "związki żelaza"
+          ],
+          "Okruchy / materia organiczna": [
+            "brak"
+          ],
+          "Warstwowanie": [
+            "równoległe",
+            "krzyżowe",
+            "brak"
+          ],
+          "Spoiwo": [
+            "krzemionkowe",
+            "krzemionkowo-żelaziste"
+          ],
+          "Skały podobne": [
+            "piasek",
+            "kwarcyt",
+            "krzemień"
+          ]
         }
       },
       {
-        nazwa: "Zlepieniec",
-        grupa: "okruchowe",
-        zdjecia: [
-          "zdjecia/zlepieniec1.jpg",
-          "zdjecia/zlepieniec2.jpg",
-          "zdjecia/zlepieniec3.jpg",
-          "zdjecia/zlepieniec4.jpg",
-          "zdjecia/zlepieniec5.jpg",
-          "zdjecia/zlepieniec6.jpg",
-          "zdjecia/zlepieniec7.jpg",
-          "zdjecia/zlepieniec8.jpg",
-          "zdjecia/zlepieniec9.jpg",
-          "zdjecia/zlepieniec10.jpg",
-          "zdjecia/zlepieniec11.jpg"
+        "nazwa": "Wapień zbity",
+        "grupa": "chemiczne",
+        "zdjecia": [
+          "zdjecia/wapienzbity1.jpg",
+          "zdjecia/wapienzbity2.jpg",
+          "zdjecia/wapienzbity3.jpg",
+          "zdjecia/wapienzbity4.jpg",
+          "zdjecia/wapienzbity5.jpg",
+          "zdjecia/wapienzbity6.jpg",
+          "zdjecia/wapienzbity7.jpg",
+          "zdjecia/wapienzbity8.jpg",
+          "zdjecia/wapienzbity9.jpg",
+          "zdjecia/wapienzbity10.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kwarc", "kalcyt", "zwiazki żelaza"],
-          "Tekstura": ["zbita", "bezładna"],
-          "Grupa gruntów": ["gruboziarnista"],
-          "Frakcja": ["żwir", "kamienie", "głazy"],
-          "Stopień selekcji materiału": ["brak"],
-          "Stopień obtoczenia": ["obtoczone"],
-          "Charakter powierzchni ziaren": ["matowe"],
-          "Skały podobne": ["glina zwałowa", "less"],
-          "okruchy skalne/zw. organiczne": ["wapienie"],
-          "spoiwo": ["żelaziste"]
+        "kategorie": {
+          "Tekstura": [
+            "skrytokrystaliczna",
+            "równoziarnista",
+            "drobnoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "kalcyt"
+          ],
+          "Minerały dodatkowe": [
+            "kaolinit",
+            "illit",
+            "montmorillonit",
+            "minerały ilaste",
+            "związki żelaza",
+            "dolomit"
+          ],
+          "Okruchy / materia organiczna": [
+            "odciski muszli",
+            "fragmenty muszli"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Skały podobne": [
+            "inne wapienie",
+            "martwica wapienna",
+            "marmur"
+          ]
         }
       },
       {
-        nazwa: "Less",
-        grupa: "okruchowe",
-        zdjecia: [
-          "zdjecia/less1.jpg",
-          "zdjecia/less2.jpg",
-          "zdjecia/less3.jpg",
-          "zdjecia/less4.jpg",
-          "zdjecia/less5.jpg",
-          "zdjecia/less6.jpg"
+        "nazwa": "Wapień bitumiczny",
+        "grupa": "chemiczne",
+        "zdjecia": [
+          "zdjecia/wapienbitumiczny1.jpg",
+          "zdjecia/wapienbitumiczny2.jpg",
+          "zdjecia/wapienbitumiczny3.jpg",
+          "zdjecia/wapienbitumiczny4.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kwarc", "kalcyt", "minerały ilaste", "zwiazki żelaza"],
-          "Tekstura": ["porowata", "bezładna"],
-          "Grupa gruntów": ["drobnoziarnista"],
-          "Frakcja": ["pył"],
-          "Stopień selekcji materiału": ["wysoki"],
-          "Stopień obtoczenia": ["obtoczone"],
-          "Charakter powierzchni ziaren": ["matowe"],
-          "Skały podobne": ["glina zwałowa", "ił warwowy"]
+        "kategorie": {
+          "Tekstura": [
+            "skrytokrystaliczna",
+            "równoziarnista",
+            "drobnoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "kalcyt"
+          ],
+          "Minerały dodatkowe": [
+            "kaolinit",
+            "illit",
+            "montmorillonit",
+            "minerały ilaste",
+            "związki żelaza",
+            "dolomit"
+          ],
+          "Okruchy / materia organiczna": [
+            "nieutleniona materia organiczna",
+            "bituminy"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Skały podobne": [
+            "inne wapienie",
+            "martwica wapienna",
+            "marmur"
+          ]
         }
       },
       {
-        nazwa: "Ił pstry",
-        grupa: "okruchowe",
-        zdjecia: [
-          "zdjecia/ilpstry1.jpg",
-          "zdjecia/ilpstry2.jpg",
-          "zdjecia/ilpstry3.jpg",
-          "zdjecia/ilpstry4.jpg",
-          "zdjecia/ilpstry5.jpg",
-          "zdjecia/ilpstry6.jpg",
-          "zdjecia/ilpstry7.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["kwarc", "minerały ilaste", "zwiazki żelaza"],
-          "Tekstura": ["porowata", "bezładna"],
-          "Grupa gruntów": ["drobnoziarnista"],
-          "Frakcja": ["ił"],
-          "Stopień selekcji materiału": ["wysoki"],
-          "Stopień obtoczenia": ["obtoczone"],
-          "Charakter powierzchni ziaren": ["matowe"],
-          "Skały podobne": ["łupki ilaste", "iłowce"]
-        }
-      },
-      {
-        nazwa: "Ił warwowy",
-        grupa: "okruchowe",
-        zdjecia: [
-          "zdjecia/ilwarstwowy1.jpg",
-          "zdjecia/ilwarstwowy2.jpg",
-          "zdjecia/ilwarstwowy3.jpg",
-          "zdjecia/ilwarstwowy4.jpg",
-          "zdjecia/ilwarstwowy5.jpg",
-          "zdjecia/ilwarstwowy6.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["kwarc", "kalcyt", "minerały ilaste", "zwiazki żelaza"],
-          "Tekstura": ["porowata", "uporządkowana"],
-          "Grupa gruntów": ["drobnoziarnista"],
-          "Frakcja": ["pył", "ił", "piasek"],
-          "Stopień selekcji materiału": ["wysoki"],
-          "Stopień obtoczenia": ["obtoczone"],
-          "Charakter powierzchni ziaren": ["matowe"],
-          "Skały podobne": ["glina zwałowa", "less"]
-        }
-      },
-      {
-        nazwa: "Glina zwałowa",
-        grupa: "okruchowe",
-        zdjecia: [
-          "zdjecia/glinazwalowa1.jpg",
-          "zdjecia/glinazwalowa2.jpg",
-          "zdjecia/glinazwalowa3.jpg",
-          "zdjecia/glinazwalowa4.jpg",
-          "zdjecia/glinazwalowa5.jpg",
-          "zdjecia/glinazwalowa6.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["kwarc", "kalcyt", "minerały ilaste", "skalenie"],
-          "Tekstura": ["porowata", "bezładna"],
-          "Grupa gruntów": ["wszystkie"],
-          "Frakcja": ["wszystkie"],
-          "Stopień selekcji materiału": ["brak"],
-          "Stopień obtoczenia": ["słabo obtoczone"],
-          "Charakter powierzchni ziaren": ["matowe"],
-          "Skały podobne": ["ił warwowy", "less"],
-          "okruchy skalne/zw. organiczne": ["okruchy skalne"]
-        }
-      },
-
-      // ===================== INNE =====================
-      {
-        nazwa: "Dolomit",
-        grupa: "inne",
-        zdjecia: [
+        "nazwa": "Dolomit",
+        "grupa": "chemiczne",
+        "zdjecia": [
           "zdjecia/dolomit1.jpg",
           "zdjecia/dolomit2.jpg",
           "zdjecia/dolomit3.jpg",
@@ -701,16 +1281,78 @@
           "zdjecia/dolomit7.jpg",
           "zdjecia/dolomit8.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kalcyt", "dolomit", "materiały ilaste", "związki żelaza"],
-          "Tekstura": ["skrytokrystaliczna", "równoziarnista", "drobnoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["wapień zbity", "wapień bitumiczny", "marmur"]
+        "kategorie": {
+          "Tekstura": [
+            "skrytokrystaliczna",
+            "równoziarnista",
+            "drobnoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "kalcyt",
+            "dolomit"
+          ],
+          "Minerały dodatkowe": [
+            "minerały ilaste",
+            "związki żelaza"
+          ],
+          "Okruchy / materia organiczna": [
+            "brak"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Skały podobne": [
+            "wapień zbity",
+            "wapień bitumiczny",
+            "marmur"
+          ]
         }
       },
       {
-        nazwa: "Gips",
-        grupa: "inne",
-        zdjecia: [
+        "nazwa": "Kreda jeziorna",
+        "grupa": "chemiczne",
+        "zdjecia": [
+          "zdjecia/kredajeziorna1.jpg",
+          "zdjecia/kredajeziorna2.jpg",
+          "zdjecia/kredajeziorna3.jpg",
+          "zdjecia/kredajeziorna4.jpg",
+          "zdjecia/kredajeziorna5.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "skrytokrystaliczna",
+            "równoziarnista",
+            "drobnoziarnista",
+            "porowata",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "kalcyt"
+          ],
+          "Minerały dodatkowe": [
+            "kwarc",
+            "minerały ilaste"
+          ],
+          "Okruchy / materia organiczna": [
+            "brak"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Skały podobne": [
+            "wapień zbity",
+            "martwica wapienna",
+            "gytia",
+            "opoka"
+          ]
+        }
+      },
+      {
+        "nazwa": "Gips",
+        "grupa": "chemiczne",
+        "zdjecia": [
           "zdjecia/gips1.jpg",
           "zdjecia/gips3.jpg",
           "zdjecia/gips4.jpg",
@@ -732,80 +1374,83 @@
           "zdjecia/gips21.jpg",
           "zdjecia/gips2.jpg"
         ],
-        kategorie: {
-          "Minerały": ["gips", "związki żelaza"],
-          "Tekstura": ["jawnokrystaliczna", "równoziarnista", "zbita"]
+        "kategorie": {
+          "Tekstura": [
+            "jawnokrystaliczna",
+            "równoziarnista",
+            "drobnoziarnista",
+            "średnioziarnista",
+            "gruboziarnista",
+            "nierównoziarnista",
+            "zbita",
+            "bezładna",
+            "uporządkowana"
+          ],
+          "Minerały główne": [
+            "gips"
+          ],
+          "Minerały dodatkowe": [
+            "związki żelaza"
+          ],
+          "Okruchy / materia organiczna": [
+            "brak"
+          ],
+          "Warstwowanie": [
+            "brak",
+            "równoległe"
+          ],
+          "Skały podobne": [
+            "alabaster"
+          ]
         }
       },
       {
-        nazwa: "Gytia",
-        grupa: "inne",
-        zdjecia: [
+        "nazwa": "Gytia",
+        "grupa": "organogeniczne",
+        "zdjecia": [
           "zdjecia/gytia1.jpg",
           "zdjecia/gytia2.jpg",
           "zdjecia/gytia3.jpg",
           "zdjecia/gytia4.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kalcyt", "kwarc", "minerały ilaste"],
-          "Tekstura": ["skrytokrystaliczna", "bezładna", "porowata"],
-          "Skały podobne": ["wapień zbity", "kreda jeziorna", "opoka"],
-          "okruchy skalne": ["muszle"]
+        "kategorie": {
+          "Tekstura": [
+            "skrytokrystaliczna",
+            "nierównoziarnista",
+            "równoziarnista",
+            "drobnoziarnista",
+            "średnioziarnista",
+            "porowata",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "kalcyt"
+          ],
+          "Minerały dodatkowe": [
+            "kaolinit",
+            "illit",
+            "montmorillonit",
+            "minerały ilaste",
+            "kwarc"
+          ],
+          "Okruchy / materia organiczna": [
+            "fragmenty muszli",
+            "fragmenty łodyg"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Skały podobne": [
+            "wapień zbity",
+            "kreda jeziorna",
+            "opoka"
+          ]
         }
       },
       {
-        nazwa: "Kreda Jeziorna",
-        grupa: "inne",
-        zdjecia: [
-          "zdjecia/kredajeziorna1.jpg",
-          "zdjecia/kredajeziorna2.jpg",
-          "zdjecia/kredajeziorna3.jpg",
-          "zdjecia/kredajeziorna4.jpg",
-          "zdjecia/kredajeziorna5.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["kalcyt", "kwarc", "minerały ilaste"],
-          "Tekstura": ["skrytokrystaliczna", "równoziarnista", "drobnoziarnista", "bezładna", "porowata"],
-          "Skały podobne": ["wapień zbity", "martwica wapienna", "gytia", "opoka"]
-        }
-      },
-      {
-        nazwa: "Opoka",
-        grupa: "inne",
-        zdjecia: [
-          "zdjecia/opoka1.jpg",
-          "zdjecia/opoka2.jpg",
-          "zdjecia/opoka3.jpg",
-          "zdjecia/opoka4.jpg",
-          "zdjecia/opoka5.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["kwarc", "kalcyt"],
-          "Tekstura": ["skrytokrystaliczna", "równoziarnista", "drobnoziarnista", "bezładna", "porowata"],
-          "Skały podobne": ["wapień zbity", "kreda jeziorna", "gytia"],
-          "okruchy skalne": ["krzemionkowe"]
-        }
-      },
-      {
-        nazwa: "Wapień bitumiczny",
-        grupa: "inne",
-        zdjecia: [
-          "zdjecia/wapienbitumiczny1.jpg",
-          "zdjecia/wapienbitumiczny2.jpg",
-          "zdjecia/wapienbitumiczny3.jpg",
-          "zdjecia/wapienbitumiczny4.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["kalcyt", "minerały ilaste", "związki żelaza", "dolomit"],
-          "Tekstura": ["skrytokrystaliczna", "równoziarnista", "drobnoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["wapienie", "martwica wapienna", "marmur"],
-          "okruchy skalne": ["bituminy"]
-        }
-      },
-      {
-        nazwa: "Wapień organogeniczny",
-        grupa: "inne",
-        zdjecia: [
+        "nazwa": "Wapień organogeniczny",
+        "grupa": "organogeniczne",
+        "zdjecia": [
           "zdjecia/wapienorganogeniczny1.jpg",
           "zdjecia/wapienorganogeniczny2.jpg",
           "zdjecia/wapienorganogeniczny3.jpg",
@@ -821,38 +1466,166 @@
           "zdjecia/wapienorganogeniczny13.jpg",
           "zdjecia/wapienorganogeniczny14.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kalcyt", "minerały ilaste", "związki żelaza"],
-          "Tekstura": ["skrytokrystaliczna", "nierównoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["wapień zbity", "wapień bitumiczny", "zlepieniec", "wapień oolitowy"],
-          "okruchy skalne": ["muszle"]
+        "kategorie": {
+          "Tekstura": [
+            "skrytokrystaliczna",
+            "nierównoziarnista",
+            "zbita",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "kalcyt",
+            "kaolinit",
+            "illit",
+            "montmorillonit",
+            "minerały ilaste"
+          ],
+          "Minerały dodatkowe": [
+            "związki żelaza"
+          ],
+          "Okruchy / materia organiczna": [
+            "fragmenty muszli",
+            "korale",
+            "szczątki roślin"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Skały podobne": [
+            "wapień zbity",
+            "wapień bitumiczny",
+            "zlepieniec zygmuntowski",
+            "wapień oolitowy"
+          ]
         }
       },
       {
-        nazwa: "Wapień zbity",
-        grupa: "inne",
-        zdjecia: [
-          "zdjecia/wapienzbity1.jpg",
-          "zdjecia/wapienzbity2.jpg",
-          "zdjecia/wapienzbity3.jpg",
-          "zdjecia/wapienzbity4.jpg",
-          "zdjecia/wapienzbity5.jpg",
-          "zdjecia/wapienzbity6.jpg",
-          "zdjecia/wapienzbity7.jpg",
-          "zdjecia/wapienzbity8.jpg",
-          "zdjecia/wapienzbity9.jpg",
-          "zdjecia/wapienzbity10.jpg"
+        "nazwa": "Opoka",
+        "grupa": "organogeniczne",
+        "zdjecia": [
+          "zdjecia/opoka1.jpg",
+          "zdjecia/opoka2.jpg",
+          "zdjecia/opoka3.jpg",
+          "zdjecia/opoka4.jpg",
+          "zdjecia/opoka5.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kalcyt", "minerały ilaste", "związki żelaza", "dolomit"],
-          "Tekstura": ["skrytokrystaliczna", "równoziarnista", "drobnoziarnista", "bezładna", "zbita"],
-          "Skały podobne": ["wapienie", "martwica wapienna", "marmur"]
+        "kategorie": {
+          "Tekstura": [
+            "skrytokrystaliczna",
+            "równoziarnista",
+            "drobnoziarnista",
+            "porowata",
+            "bezładna"
+          ],
+          "Minerały główne": [
+            "kalcyt",
+            "kwarc"
+          ],
+          "Okruchy / materia organiczna": [
+            "krzemionkowe igły gąbek"
+          ],
+          "Warstwowanie": [
+            "brak"
+          ],
+          "Skały podobne": [
+            "wapień zbity",
+            "kreda jeziorna",
+            "gytia"
+          ]
         }
       },
       {
-        nazwa: "Gnejs",
-        grupa: "inne",
-        zdjecia: [
+        "nazwa": "Kwarcyt",
+        "grupa": "metamorficzne",
+        "zdjecia": [
+          "zdjecia/kwarcyt1.jpg",
+          "zdjecia/kwarcyt2.jpg",
+          "zdjecia/kwarcyt4.jpg",
+          "zdjecia/kwarcyt5.jpg",
+          "zdjecia/kwarcyt7.jpg",
+          "zdjecia/kwarcyt8.jpg",
+          "zdjecia/kwarcyt9.jpg",
+          "zdjecia/kwarcyt10.jpg",
+          "zdjecia/kwarcyt11.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "jawnokrystaliczna",
+            "zbita",
+            "równoziarnista",
+            "drobnoziarnista",
+            "średnioziarnista",
+            "gruboziarnista",
+            "nierównoziarnista",
+            "bezładna",
+            "uporządkowana"
+          ],
+          "Minerały główne": [
+            "kwarc"
+          ],
+          "Minerały dodatkowe": [
+            "związki żelaza"
+          ],
+          "Warstwowanie": [
+            "brak",
+            "równoległe"
+          ],
+          "Skały podobne": [
+            "piaskowiec",
+            "piasek",
+            "krzemień"
+          ]
+        }
+      },
+      {
+        "nazwa": "Marmur",
+        "grupa": "metamorficzne",
+        "zdjecia": [
+          "zdjecia/marmur1.jpg",
+          "zdjecia/marmur2.jpg",
+          "zdjecia/marmur3.jpg",
+          "zdjecia/marmur4.jpg",
+          "zdjecia/marmur5.jpg",
+          "zdjecia/marmur6.jpg",
+          "zdjecia/marmur7.jpg",
+          "zdjecia/marmur8.jpg"
+        ],
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "jawnokrystaliczna",
+            "zbita",
+            "równoziarnista",
+            "drobnoziarnista",
+            "średnioziarnista",
+            "gruboziarnista",
+            "nierównoziarnista",
+            "bezładna",
+            "uporządkowana"
+          ],
+          "Minerały główne": [
+            "kalcyt",
+            "biotyt"
+          ],
+          "Minerały dodatkowe": [
+            "związki żelaza"
+          ],
+          "Warstwowanie": [
+            "brak",
+            "równoległe"
+          ],
+          "Skały podobne": [
+            "wapienie",
+            "dolomity",
+            "martwica wapienna"
+          ]
+        }
+      },
+      {
+        "nazwa": "Gnejs",
+        "grupa": "metamorficzne",
+        "zdjecia": [
           "zdjecia/gnejs1.jpg",
           "zdjecia/gnejs2.jpg",
           "zdjecia/gnejs3.jpg",
@@ -866,58 +1639,47 @@
           "zdjecia/gnejs11.jpg",
           "zdjecia/gnejs12.jpg"
         ],
-        kategorie: {
-          "Minerały": ["kwarc", "albit", "oligoklaz", "ortoklaz"],
-          "Tekstura": ["jawnokrystaliczna", "pełnokrystaliczna", "uporządkowana", "zbita", "równoziarnista", "gruboziarnista"],
-          "Skały podobne": ["granit", "pegmatyt", "riolit"],
-          "warstwowanie": ["równoległe"]
-        }
-      },
-      {
-        nazwa: "Marmur",
-        grupa: "inne",
-        zdjecia: [
-          "zdjecia/marmur1.jpg",
-          "zdjecia/marmur2.jpg",
-          "zdjecia/marmur3.jpg",
-          "zdjecia/marmur4.jpg",
-          "zdjecia/marmur5.jpg",
-          "zdjecia/marmur6.jpg",
-          "zdjecia/marmur7.jpg",
-          "zdjecia/marmur8.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["kalcyt", "biotyt", "związki żelaza"],
-          "Tekstura": ["pełnokrystaliczna", "jawnokrystaliczna", "równoziarnista", "bezładna", "uporządkowana", "zbita"],
-          "Skały podobne": ["wapienie", "dolomity", "martwica wapienna"]
-        }
-      },
-      {
-        nazwa: "Kwarcyt",
-        grupa: "inne",
-        zdjecia: [
-          "zdjecia/kwarcyt1.jpg",
-          "zdjecia/kwarcyt2.jpg",
-          "zdjecia/kwarcyt4.jpg",
-          "zdjecia/kwarcyt5.jpg",
-          "zdjecia/kwarcyt7.jpg",
-          "zdjecia/kwarcyt8.jpg",
-          "zdjecia/kwarcyt9.jpg",
-          "zdjecia/kwarcyt10.jpg",
-          "zdjecia/kwarcyt11.jpg"
-        ],
-        kategorie: {
-          "Minerały": ["kwarc", "związki żelaza"],
-          "Tekstura": ["pełnokrystaliczna", "jawnokrystaliczna", "równoziarnista", "bezładna", "uporządkowana", "zbita"],
-          "Skały podobne": ["piaskowiec", "piasek", "krzemień"]
+        "kategorie": {
+          "Tekstura": [
+            "pełnokrystaliczna",
+            "jawnokrystaliczna",
+            "zbita",
+            "równoziarnista",
+            "drobnoziarnista",
+            "średnioziarnista",
+            "gruboziarnista",
+            "nierównoziarnista",
+            "uporządkowana"
+          ],
+          "Minerały główne": [
+            "kwarc",
+            "albit",
+            "oligoklaz",
+            "ortoklaz",
+            "biotyt",
+            "muskowit",
+            "amfibole",
+            "pirokseny"
+          ],
+          "Warstwowanie": [
+            "tak",
+            "równoległe"
+          ],
+          "Skały podobne": [
+            "granit",
+            "pegmatyt",
+            "riolit"
+          ]
         }
       }
     ];
     // =========================================================================
 
     let deck = [];
+    let wrongQueue = [];
+    let isRetryRound = false;
     let currentIdx = 0;
-    let state = { nameSolved: false, found: {}, activeCategory: null };
+    let state = { nameSolved: false, found: {}, activeCategory: null, markedWrong: false };
     let cardErrTimeout = null;
     let atlasFilterGroup = "wszystkie";
     let atlasAllExpanded = false;
@@ -935,6 +1697,7 @@
       hints: document.getElementById("hintsToggle"),
       shuffle: document.getElementById("shuffleBtn"),
       progress: document.getElementById("progressText"),
+      retryBadge: document.getElementById("retryBadge"),
       status: document.getElementById("statusText"),
       imgBox: document.getElementById("imgBox"),
       stage1: document.getElementById("stage1Box"),
@@ -946,6 +1709,9 @@
       revealBtn: document.getElementById("revealBtn"),
       nextBtn: document.getElementById("nextBtn"),
       datalists: document.getElementById("datalists"),
+
+      compareSidebar: document.getElementById("compareSidebar"),
+      compareContent: document.getElementById("compareContent"),
 
       hintsSidebar: document.getElementById("hintsSidebar"),
       sidebarTitle: document.getElementById("sidebarTitle"),
@@ -968,8 +1734,28 @@
         .replace(/ł/g, "l");
     }
 
+    function levenshtein(a, b) {
+      const m = a.length, n = b.length;
+      if (m === 0) return n;
+      if (n === 0) return m;
+      const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+      for (let i = 0; i <= m; i++) dp[i][0] = i;
+      for (let j = 0; j <= n; j++) dp[0][j] = j;
+      for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          dp[i][j] = Math.min(
+            dp[i - 1][j] + 1,
+            dp[i][j - 1] + 1,
+            dp[i - 1][j - 1] + cost
+          );
+        }
+      }
+      return dp[m][n];
+    }
+
     function isDesktop() {
-      return window.matchMedia("(min-width: 900px)").matches;
+      return window.matchMedia("(min-width: 961px)").matches;
     }
 
     function shuffleArray(arr) {
@@ -989,7 +1775,7 @@
 
     function setCardState(type) {
       clearTimeout(cardErrTimeout);
-      els.card.classList.remove("card-ok", "card-err");
+      els.card.classList.remove("card-ok", "card-err", "card-warn");
       if (type === "ok") {
         els.card.classList.add("card-ok");
       } else if (type === "err") {
@@ -997,6 +1783,12 @@
         els.card.classList.add("card-err");
         cardErrTimeout = setTimeout(() => {
           els.card.classList.remove("card-err");
+        }, 900);
+      } else if (type === "warn") {
+        void els.card.offsetWidth;
+        els.card.classList.add("card-warn");
+        cardErrTimeout = setTimeout(() => {
+          els.card.classList.remove("card-warn");
         }, 900);
       }
     }
@@ -1018,6 +1810,99 @@
         els.lightboxImg.src = "";
       }
     });
+
+    // ===================== PANEL PORÓWNAWCZY (LEWY) =====================
+    function hideCompareSidebar() {
+      els.compareSidebar.classList.add("hidden");
+      document.body.classList.remove("has-left-sidebar");
+      els.compareContent.innerHTML = "";
+    }
+
+    function buildCompareBlock(rockObj, labelText, cssType, preferredImg) {
+      const imgs = Array.isArray(rockObj.zdjecia) ? rockObj.zdjecia : [];
+      const imgSrc = preferredImg || (imgs.length > 0 ? imgs[Math.floor(Math.random() * imgs.length)] : "");
+
+      const tekstura = (rockObj.kategorie && rockObj.kategorie["Tekstura"]) || [];
+      const minGlowne = (rockObj.kategorie && (rockObj.kategorie["Minerały główne"] || rockObj.kategorie["Minerały"])) || [];
+      const minDod = (rockObj.kategorie && rockObj.kategorie["Minerały dodatkowe"]) || [];
+      const mineraly = [...minGlowne, ...minDod];
+
+      const block = document.createElement("div");
+      block.className = `compare-block ${cssType}`;
+
+      const texTags = tekstura.length > 0
+        ? tekstura.map(t => `<span class="tag info">${t}</span>`).join("")
+        : `<span style="font-size:12px; color:var(--muted);">Brak danych</span>`;
+
+      const minTags = mineraly.length > 0
+        ? mineraly.map(m => `<span class="tag info">${m}</span>`).join("")
+        : `<span style="font-size:12px; color:var(--muted);">Brak danych</span>`;
+
+      block.innerHTML = `
+        <div class="compare-label ${cssType}">${labelText}</div>
+        <div class="compare-rock-name">${rockObj.nazwa}</div>
+        <div class="compare-img-wrap">
+          ${imgSrc ? `<img src="${imgSrc}" alt="${rockObj.nazwa}" title="Kliknij, aby powiększyć">` : `<span style="font-size:12px; color:var(--muted);">Brak zdjęcia</span>`}
+        </div>
+        <div class="compare-section-title">Tekstura</div>
+        <div class="compare-tags">${texTags}</div>
+        <div class="compare-section-title">Minerały</div>
+        <div class="compare-tags">${minTags}</div>
+      `;
+
+      const imgEl = block.querySelector("img");
+      if (imgEl) {
+        imgEl.addEventListener("click", () => {
+          openLightbox(imgSrc, `${rockObj.nazwa} (${labelText})`);
+        });
+      }
+
+      return block;
+    }
+
+    function showCompareSidebar(correctRockCard, guessedRockObj) {
+      const fullCorrectRock = BAZA_SKAL.find(r => norm(r.nazwa) === norm(correctRockCard.nazwa)) || correctRockCard;
+      const correctImgs = Array.isArray(fullCorrectRock.zdjecia) ? fullCorrectRock.zdjecia : [];
+      const otherImgs = correctImgs.filter(src => src !== correctRockCard.aktywneZdjecie);
+      const refCorrectImg = otherImgs.length > 0
+        ? otherImgs[Math.floor(Math.random() * otherImgs.length)]
+        : correctRockCard.aktywneZdjecie;
+
+      els.compareContent.innerHTML = "";
+      els.compareContent.appendChild(
+        buildCompareBlock(fullCorrectRock, "Poprawna odpowiedź", "correct", refCorrectImg)
+      );
+      els.compareContent.appendChild(
+        buildCompareBlock(guessedRockObj, "Twoja odpowiedź", "wrong", null)
+      );
+
+      els.compareSidebar.classList.remove("hidden");
+      document.body.classList.add("has-left-sidebar");
+    }
+
+    function enqueueWrongCard(card) {
+      if (state.markedWrong) return;
+      state.markedWrong = true;
+      const alreadyQueued = wrongQueue.some(
+        item => item.nazwa === card.nazwa && item.aktywneZdjecie === card.aktywneZdjecie
+      );
+      if (!alreadyQueued) {
+        wrongQueue.push({ ...card });
+      }
+      updateRetryIndicator();
+    }
+
+    function updateRetryIndicator() {
+      if (isRetryRound) {
+        els.retryBadge.textContent = "Runda powtórkowa";
+        els.retryBadge.classList.remove("hidden");
+      } else if (wrongQueue.length > 0) {
+        els.retryBadge.textContent = `Do powtórki: ${wrongQueue.length}`;
+        els.retryBadge.classList.remove("hidden");
+      } else {
+        els.retryBadge.classList.add("hidden");
+      }
+    }
 
     // ===================== ZAKŁADKI (FISZKI / ATLAS) =====================
     function switchTab(tab) {
@@ -1060,6 +1945,8 @@
       });
 
       deck = shouldShuffle ? shuffleArray(items) : items;
+      wrongQueue = [];
+      isRetryRound = false;
       currentIdx = 0;
     }
 
@@ -1069,7 +1956,6 @@
       const names = [...new Set(rocks.map(r => r.nazwa))];
       createDatalist("dl-names", names);
 
-      // Pule dla kategorii zbierane z CAŁEJ bazy (niezależnie od wybranej grupy magmowe/okruchowe/inne)
       const pools = {};
       BAZA_SKAL.forEach(rock => {
         Object.entries(rock.kategorie || {}).forEach(([cat, vals]) => {
@@ -1099,7 +1985,6 @@
 
     function updateHintsAttr() {
       const on = els.hints.checked;
-      // Na desktopie używamy bocznego panelu zamiast natywnego dropdowna datalist, na mobile zostawiamy datalist
       const useDatalist = on && !isDesktop();
 
       if (useDatalist) els.nameInput.setAttribute("list", "dl-names");
@@ -1115,7 +2000,7 @@
 
     function updateSidebar() {
       const on = els.hints.checked;
-      document.body.classList.toggle("has-sidebar", on);
+      document.body.classList.toggle("has-right-sidebar", on);
       els.hintsSidebar.classList.toggle("hidden", !on);
 
       if (!on || deck.length === 0) return;
@@ -1125,7 +2010,6 @@
       els.sidebarChips.innerHTML = "";
 
       if (!isStage2Active) {
-        // ETAP 1: wszystkie możliwe skały z aktualnie wybranej grupy (np. Magmowe / Wszystkie)
         const rocks = getFilteredRocks();
         const names = [...new Set(rocks.map(r => r.nazwa))].sort((a, b) => a.localeCompare(b, "pl"));
         const groupLabel = els.group.value === "wszystkie" ? "Wszystkie grupy" : (NAZWY_GRUP[els.group.value] || els.group.value);
@@ -1146,7 +2030,6 @@
           els.sidebarChips.appendChild(btn);
         });
       } else {
-        // ETAP 2: wszystkie możliwe odpowiedzi z CAŁEJ bazy dla aktywnej (klikniętej) kategorii
         const activeCat = state.activeCategory;
         if (!activeCat || !categoryPools[activeCat]) {
           els.sidebarTitle.textContent = "Podpowiedzi kategorii";
@@ -1192,6 +2075,8 @@
     }
 
     function loadCard() {
+      hideCompareSidebar();
+
       if (deck.length === 0) {
         els.progress.textContent = "Brak skał w tej kategorii";
         els.imgBox.innerHTML = `<div class="img-fallback">Brak skał w wybranej grupie.</div>`;
@@ -1205,9 +2090,11 @@
       state = {
         nameSolved: mode === "stage2",
         found: {},
-        activeCategory: catKeys.length > 0 ? catKeys[0] : null
+        activeCategory: catKeys.length > 0 ? catKeys[0] : null,
+        markedWrong: false
       };
       setCardState(null);
+      updateRetryIndicator();
 
       const labelType = mode === "stage1" ? "Zdjęcie" : "Skała";
       const groupName = els.group.value === "wszystkie" ? "Wszystkie" : (NAZWY_GRUP[els.group.value] || els.group.value);
@@ -1324,7 +2211,14 @@
     function goNextCard() {
       currentIdx++;
       if (currentIdx >= deck.length) {
-        buildDeck(true);
+        if (wrongQueue.length > 0) {
+          deck = shuffleArray([...wrongQueue]);
+          wrongQueue = [];
+          isRetryRound = true;
+          currentIdx = 0;
+        } else {
+          buildDeck(true);
+        }
       }
       loadCard();
     }
@@ -1336,9 +2230,16 @@
       }
 
       const rock = deck[currentIdx];
-      if (norm(els.nameInput.value) === norm(rock.nazwa)) {
+      const userNorm = norm(els.nameInput.value);
+      const targetNorm = norm(rock.nazwa);
+
+      if (!userNorm) return;
+
+      // 1. Poprawna odpowiedź
+      if (userNorm === targetNorm) {
         state.nameSolved = true;
         setCardState("ok");
+        els.status.style.color = "var(--ok)";
         els.status.textContent = "Dobrze! (Enter → dalej)";
 
         if (els.mode.value === "both") {
@@ -1349,10 +2250,35 @@
           if (firstCatInput) firstCatInput.focus();
           updateSidebar();
         }
-      } else {
-        setCardState("err");
-        els.status.textContent = "";
+        return;
       }
+
+      // 2. Sprawdź, czy wpisano inną istniejącą skałę z bazy (faktyczny błąd merytoryczny)
+      const matchedOtherRock = BAZA_SKAL.find(r => norm(r.nazwa) === userNorm);
+      if (matchedOtherRock) {
+        setCardState("err");
+        els.status.style.color = "#fca5a5";
+        els.status.textContent = `To nie jest ${matchedOtherRock.nazwa}`;
+        showCompareSidebar(rock, matchedOtherRock);
+        enqueueWrongCard(rock);
+        return;
+      }
+
+      // 3. Sprawdź, czy to zwykła literówka (blisko poprawnej nazwy, próg 1-2 znaki)
+      const maxTypoDist = targetNorm.length <= 5 ? 1 : 2;
+      const distToTarget = levenshtein(userNorm, targetNorm);
+      if (distToTarget <= maxTypoDist) {
+        setCardState("warn");
+        els.status.style.color = "#fcd34d";
+        els.status.textContent = "Literówka – popraw pisownię";
+        return;
+      }
+
+      // 4. Zupełnie nieznane hasło spoza bazy – błąd, bez panelu porównania
+      setCardState("err");
+      els.status.style.color = "#fca5a5";
+      els.status.textContent = "Niepoprawna nazwa";
+      enqueueWrongCard(rock);
     }
 
     els.checkNameBtn.addEventListener("click", checkName);
@@ -1366,9 +2292,11 @@
     els.revealBtn.addEventListener("click", () => {
       const rock = deck[currentIdx];
       if (!state.nameSolved) {
+        enqueueWrongCard(rock);
         els.nameInput.value = rock.nazwa;
         state.nameSolved = true;
         setCardState("ok");
+        els.status.style.color = "#fcd34d";
         els.status.textContent = "Odsłonięto (Enter → dalej)";
         els.nameInput.focus();
         if (els.mode.value === "both") {
